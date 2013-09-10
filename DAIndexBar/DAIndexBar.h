@@ -21,6 +21,9 @@
 
 @property (strong, nonatomic) NSArray *indexTitles;
 @property (strong, nonatomic) UIColor *indexColor;
+@property (assign, nonatomic) CGFloat topInset;
+@property (assign, nonatomic) CGFloat bottomInset;
+
 @property (weak, nonatomic) id<DAIndexBarDelegate> delegate;
 
 @end

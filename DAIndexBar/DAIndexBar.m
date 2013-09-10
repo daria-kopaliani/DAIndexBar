@@ -37,6 +37,40 @@
     return self;
 }
 
+#pragma mark - Public
+
+- (void)setBottomInset:(CGFloat)bottomInset
+{
+    if (_bottomInset != bottomInset) {
+        _bottomInset = bottomInset;
+        [self setNeedsLayout];
+    }
+}
+
+- (void)setIndexColor:(UIColor *)indexColor
+{
+    if (![_indexColor isEqual:indexColor]) {
+        _indexColor = indexColor;
+        [self setNeedsLayout];
+    }
+}
+
+- (void)setIndexTitles:(NSArray *)indexTitles
+{
+    if (![_indexTitles isEqual:indexTitles]) {
+        _indexTitles = indexTitles;
+        [self setNeedsLayout];
+    }
+}
+
+- (void)setTopInset:(CGFloat)topInset
+{
+    if (_topInset != topInset) {
+        _topInset = topInset;
+        [self setNeedsLayout];
+    }
+}
+
 #pragma mark - Private
 
 - (void)handleTouch:(UITouch *)touch
@@ -52,20 +86,17 @@
     [self.indexTitles enumerateObjectsAtIndexes:indexSet
                                         options:NSEnumerationReverse
                                      usingBlock:^(NSString *letter, NSUInteger index, BOOL *stop) {
-        scrollIndex = [self.indexTitles indexOfObject:letter];
-        *stop = scrollIndex != NSNotFound;
-    }];
+                                         scrollIndex = [self.indexTitles indexOfObject:letter];
+                                         *stop = scrollIndex != NSNotFound;
+                                     }];
     [self.delegate indexBar:self didSelectIndex:scrollIndex];
 }
 
 - (void)setUp
 {
-    if (!self.indexTitles) {
-        self.indexTitles = [[UILocalizedIndexedCollation currentCollation] sectionIndexTitles];
-    }
-    if (!self.indexColor) {
-        self.indexColor =[UIColor lightGrayColor];
-    }
+    self.indexTitles = [[UILocalizedIndexedCollation currentCollation] sectionIndexTitles];
+    self.indexColor =[UIColor lightGrayColor];
+    self.topInset = self.bottomInset = 0;
 }
 
 - (CATextLayer *)textLayerWithFontSize:(CGFloat)fontSize string:(NSString *)string frame:(CGRect)frame
@@ -80,17 +111,18 @@
     [textLayer setString:string];
     return textLayer;
 }
-     
+
 #pragma mark - Public
 
 - (void)layoutSubviews
 {
     [super layoutSubviews];
     [self.layer.sublayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
-    self.indexViewHeight = CGRectGetHeight(self.frame) / self.indexTitles.count;
     CGFloat fontSize = 12;
+    CGFloat height = CGRectGetHeight(self.frame) - self.bottomInset - self.topInset;
+    self.indexViewHeight = height / self.indexTitles.count;
     [self.indexTitles enumerateObjectsUsingBlock:^(NSString *letter, NSUInteger index, BOOL *stop) {
-        CGRect frame = CGRectMake(0., index * self.indexViewHeight, CGRectGetWidth(self.frame), self.indexViewHeight);
+        CGRect frame = CGRectMake(0., self.topInset + index * self.indexViewHeight, CGRectGetWidth(self.frame), self.indexViewHeight);
         CATextLayer *textLayer = [self textLayerWithFontSize:fontSize
                                                       string:letter
                                                        frame:frame];
